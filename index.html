@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İlayda & Yavuz'un Uzay Günlüğü</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Ubuntu&display=swap');
+
+    body {
+      margin: 0;
+      background: black;
+      color: #fff;
+      font-family: 'Ubuntu', sans-serif;
+      overflow-x: hidden;
+    }
+
+    canvas#stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .login-box {
+      background: #222;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(255,255,255,0.2);
+      text-align: center;
+    }
+
+    .login-box h2 {
+      font-size: 2rem;
+      color: #feda4a;
+      margin-bottom: 1rem;
+    }
+
+    .login-box input {
+      padding: 0.75rem;
+      border-radius: 6px;
+      border: none;
+      width: 100%;
+      max-width: 300px;
+      font-size: 1rem;
+      background: #111;
+      color: #feda4a;
+      text-align: center;
+    }
+
+    .login-box button {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      background: #feda4a;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .content {
+      display: none;
+      padding: 2rem;
+    }
+
+    .memory {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+      margin: 2rem auto;
+      padding: 1rem;
+      max-width: 600px;
+      transition: all 0.3s ease;
+    }
+
+    .memory img {
+      width: 100%;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+    }
+
+    .memory.left {
+      margin-right: auto;
+    }
+
+    .memory.right {
+      margin-left: auto;
+    }
+
+    @keyframes fadeInMain {
+      0% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInSub {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .memory {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    .memory.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .memory.left.visible {
+      transform: translateX(-20px);
+    }
+
+    .memory.right.visible {
+      transform: translateX(20px);
+    }
+
+    .planet {
+      position: fixed;
+      width: 150px;
+      opacity: 0.07;
+      animation: fadeInOut 20s infinite ease-in-out;
+      z-index: -2;
+    }
+
+    .planet1 {
+      top: 10%;
+      left: 5%;
+      animation-delay: 0s;
+    }
+
+    .planet2 {
+      bottom: 15%;
+      right: 10%;
+      animation-delay: 10s;
+    }
+
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0; transform: scale(1); }
+      50% { opacity: 0.08; transform: scale(1.05); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+  <img src="planet1.png" class="planet planet1">
+  <img src="planet2.png" class="planet planet2">
+
+  <div class="overlay" id="login">
+    <div class="login-box">
+      <h2 style="font-family: 'Orbitron', sans-serif;">Mulos</h2>
+      <input type="password" id="password" placeholder="Şifreyi Gir">
+      <button id="login-btn">Giriş</button>
+    </div>
+  </div>
+
+  <div class="content" id="diary">
+    <div style="text-align:center; margin-bottom: 2rem;">
+      <h1 style="color: #feda4a; font-size: 2.5rem; font-family: 'Orbitron', sans-serif; animation: fadeInMain 2s ease forwards;">Hayatımın En Güzel Anları</h1>
+      <p style="color: #ccc; font-size: 1rem; margin-top: 0.5rem; animation: fadeInSub 3s ease forwards;">You’re exactly the way I remember you in my dreams</p>
+    </div>
+    <div id="memories" style="position: relative;">
+  <div class="memory left">
+    <h3>Hikayemizin Başı</h3>
+    <p>Her şey böyle başladı. İlk başta sadece birbirine karşı bir şeyler hisseden 2 "arkadaştık".
+      Birbirimize karşı hislerimizi saklayıp hayatımıza devam etmeye çalıştık. Ama ikimiz de daha fazla
+      böyle devam edemeyeceğimizi biliyorduk. Aynı Anakin ve Padme gibi. Yaşamamamız gereken bir yasak bir
+      aşk yaşıyorduk resmen. Bu hislerimi uzun zamandır saklamaya çalıştım ama sana olan sevgim o kadar büyüdü
+      ki artık içimde tutamayacak duruma geldim.
+    </p>
+    <img src="Anilar/1.jpg" alt="Anı 1 Fotoğrafı">
+  </div>
+  <div class="memory right">
+    <h3>Tek Kaldığımız Zamanlar</h3>
+    <p>Seninle ne zaman tek kalsam o ihtimali düşünüyordum. Ya sana hislerimi açıklayabilseydim. Senin bana
+      her temasında, her bakışında içimi bir volkan gibi patlatasım geliyordu. Gerçekten bir yerden sonra seninle
+      her buluştuğumda ne kadar mutlu olsam da imkansız görünen hayallerim içimi parçalıyordu.
+    </p>
+    <img src="Anilar/2.jpg" Anı 2 Fotoğrafı">
+  </div>
+  <div class="memory left">
+    <h3>24.12.23</h3>
+    <p>Ve geldik o malum geceye. İçimin bir çocuk gibi kıpır kığır olduğu ve çok korktuğum geceye.
+      Senin bana içimden bir mermi gibi geçen o cümleyi söylediğin geceye. O saatlerce konuşmalarımız
+      susuzluktan ölmek üzere olan bir insanın son anında su bulup, o suyu kana kana içmesi gibiydi.
+      O kadar rahatladım ki... Sanki içimdeki yaralar birer birer kapanıyordu. Ama bekle demen hiç hoş değildi >:(
+      O geceye ait bir fotoğrafımız yok ama 1-2 gün sonrasında çektiğimzi bir fotoğrafı koymak istiyorum.
+    </p>
+    <img src="Anilar/3.jpg" alt="Anı 3 Fotoğrafı">
+  </div>
+  <div class="memory right">
+    <h3>First Date</h3>
+    <p>Seni almaya gelirken aklımdan yüzlerce şey geçiyordu. Acaba bu bir oyun olabilir miydi? Beni denemek
+      için miydi bütün bunlar? Overthinklemekten kafayı yiyecektim. Bu düşüncelerimin tek sebebi ise
+      seninle sevgili olmanın düşüncesinin ne kadar gerçeklikten uzak olduğunu düşünmemdi. Her şeye rağmen
+      karnımda kelebekler açar bir şekilde seni aradım. Sen arabaya bindikten ve elimi tuttuktan sonra kafamı kurcalayan
+      sis bulutu ortandan kalkmıştı. Dünyanın en mutlu ve şanslı adamı bendim artık. Benim sırtımı kimse yere getiremez,
+      kimse beni üzemez diye düşünüp durdum kendimce.
+    </p>
+    <img src="Anilar/4.jpg" alt="Anı 4 Fotoğrafı">
+  </div>
+  <div class="memory left">
+    <h3>Dünyanın En Mutlu Adamı</h3>
+    <p>Date üstüne date'e çıktık. Hatta 5 kere üst üste. Birbirimizi o kadar özlemiştik ki o bile yetmemişti
+      O zamanlar bunun bize yeteceğini düşünüyorudm ama çok yanıldım. Şimdi senden 1 günü bırak 1 saat bile ayrı
+      kalsam özlemim devam ediyor. Sana yaklaştıkça sana olan hasretim daha da büyüyor. Hayatımın her saniyesinde
+      seninle beraber olmak istiyorum.
+    </p>
+    <img src="Anilar/5.jpg" alt="Anı 5 Fotoğrafı">
+  </div>
+  <div class="memory right">
+    <h3>Best Couple In The Universe</h3>
+    <p>Seninle birebir zaman geçirmek beni çok değiştirdi. Sen beni, sadece kendimi düşünen, başka insanlara
+      karşı soğuk kalkan çekmiş bir adamdan, hislerini ve düşüncelerini korkamdan paylaşabilecek birisine dönüştürdün.
+      Biz ne yaparsak yapalım en iyisini yaptık. Biz bu galaksideki en iyi çiftiz.
+      <br> CANNOT CHANGE MY MİND!
+    </p>
+    <img src="Anilar/6.jpg" alt="Anı 6 Fotoğrafı">
+  </div>
+  <div class="memory left">
+    <h3>Şoförlayda</h3>
+    <p>Sana araba kullanmayı öğretirken çok mutluydum. Hem bir konuda ilkin olacaktım hem de senin "Kadınlar
+      araba kullanamaz!" algısını kıracağını biliyordum. Daha ilk günden çok düzgün kullanmaya başlamıştın. O gün girseydin bile
+      sınavı geçebileneceğine inanmıştım. Sadece stres ve öfke kontrol sorunların vardı onun dışında çok güzel sürüyordun.
+      Şu an hala sen araba kullanırken gururlanıyor ve o zamanlarını hatırlıyorum. Ne kadar yol geldiğini düşünmek bile gözlerimi
+      yaşartıp gülümsetmeye yetiyor.
+
+    </p>
+    <img src="Anilar/7.jpg" alt="Anı 7 Fotoğrafı">
+  </div>
+  <div class="memory right">
+    <h3>Aynı Biz!</h3>
+    <p>Bu kozalakları zaten hatırlıyorsundur. Doğada bile "Aynı Biz!"" diyebileceğimiz şeyleri
+      bulmak ne kadar güzel bir çift olduğumuzu kanıtlıyor bence. </p>
+    <img src="Anilar/10.jpg" alt="Anı 8 Fotoğrafı">
+  </div>
+  <div class="memory left">
+    <h3>Evim</h3>
+    <p>Bir insanın güvende ve evinde hissetmesi için illa 4 duvar ve çatı arasında sıkışmasına gerek yok.
+      Ben senin yanındayken huzurlu ve evimde hissediyorum. Senin ellerinde yarım saat uyumak bile bütün
+      hayatımın boyunca uyumalarıma bedeldi. Uyandığımda yine senin o güzel yüzünü görüp uyamak kadar tatlı bir his yok bu dünyada.
+      Sen neredeysen benim evim de hep orada olacak. <br> SENİ SEVİYORUM.
+
+    </p>
+    <img src="Anilar/13.jpg" alt="Anı 9 Fotoğrafı">
+  </div>
+  <div class="memory right">
+    <h3>Minik Corollamız</h3>
+    <p>Aslında bu fotoğraftada yazıdan çok fotoğraf duyguyu veriyor. Minik corollamızla bir sürü maceralara atıldık.
+      İster uzun yol, bazen yük taşıma, istediğimiz yere varma. Senin de bildiğin gibi corollamız bize minik bir ev oldu.
+      <br>İyi ki varsın minik corolla!
+    </p>
+    <img src="Anilar/14.jpg" alt="Anı 10 Fotoğrafı">
+  </div>
+  <div class="memory left">
+    <h3>♫Çık Çık Çık Çık İlayda Mezunn♫</h3>
+    <p>Senin mezuniyetine katıldığımda çok değişik hissediyordum. Seni sanki ben büyütmüşüm de böyle yuvadan kuş uçuruyormuşum gibi...
+      Neden böyle hissediyorum hala anlamıyorum ama o sahnede seni görüp plaketini almanı izlemek çok gurur vericiydi. Sen sıranı beklerken seninle bakışıp
+      birbirimize attığımız öpücükler, o minik bakışmalarımız hala hepsini dün gibi hatırlıyorum. Minnoş kızım benim.
+      Allah akademik yolunu daha da açık etsin. İnşallah bu muafiyeti de başarısıyla geçecek benim kuzummm.
+    </p>
+    <img src="Anilar/15.jpg"Anı 11 Fotoğrafı">
+  </div>
+  <div class="memory right">
+    <h3>Star Wars Date</h3>
+    <p>Bu siteyi de yaparken de esin kaynağım olan Star Wars'u izlemeye gittiğimizde. Benim için yeri büyük olan bir seriyi seninle beraber ilk kez sinemada izlemek
+      adeta rüya gibiyi. Senin bu seriyi benimle izlemiş olman da ayrıca mutlu ediyor beni. Bugün kombinlerimzi de Yoda ve Vader'dan esinlenmişti.
+      Galaksinin en iyi çifti olduğumuz yetmiyor bir de en iyi geekleri olacağız galiba.
+    </p>
+    <img src="Anilar/18.jpg" alt="Anı 12 Fotoğrafı">
+  </div>
+  <div class="memory left">
+    <h3>Edirne Yolcusu Kalmasınnn</h3>
+    <p>Timeline biraz karıştı biliyorum aşkım :p Ama bunu ben de birsürü fotoğraf arasından seçip yapıyorum. Olabildiğince kronolojik gitmeye çalıştım.
+      En azından odamdan daha toplu oldu :D Edirne yolcuğumuz çok güzeldi. Her ne kadar orada aradığımzı bulamasak ve ekşi suratlı kardeşlere sahip olsak da
+      biz yine mutlu ayrılabildik. Bugün bir kez daha anladım ki mutlu olabilmek için yerden çok seninle olmak benim için daha önemli.
+    </p>
+    <img src="Anilar/19.jpg" alt="Anı 13 Fotoğrafı">
+  </div>
+  <div class="memory right">
+    <h3>Sarı Çiçekler</h3>
+    <p>Bu zamnalarda anlamadığımız şekilde her yerde bunlardan vardı. Biraz geç oldu sana o çiçekleri vermem ama verdiğim için mutluyum.</p>
+    <img src="Anilar/20.jpg" alt="Anı 14 Fotoğrafı">
+  </div>
+  <div class="memory left">
+    <h3>Sporcu Mulos</h3>
+    <p>Uzun zaman sonra ilk kez seninle basket oynamıştım. Benim için bir zamanlar hayatımın yapmayı en çok sevdiğim aktivitesi olan basketi bir de 
+      senle oynamak çok güzel hissettirmişti. Umarım bir daha çıkabiliriz.
+    </p>
+    <img src="Anilar/21.jpg" alt="Anı 15 Fotoğrafı">
+  </div>
+  <div class="memory right">
+    <h3>Pedal to The Metal</h3>
+    <p>Beraber bisiklet sürmek en çok zevk aldığım aktivitelerden biri haline geldi. Bisiklet sürmeyi zaten seviyordum ama seninle yapıp hiç bisikletle geçmediğim
+      yerlerden seninle geçmenin keyfi çok ayrı. Yazarken şunu fark ettim ki ben uzun zamandır yapmadığım şeyleri
+      tekrar seninle yapmışım. İyi ki de yapmışım. Çocukluğumdan bile daha çok keyif alıyorum. Teşekkürler bebişş.
+    </p>
+    <img src="Anilar/bisk.jpg" alt="Anı 16 Fotoğrafı">
+  </div>
+    <hr style="border: none; border-top: 1px dashed rgba(255,255,255,0.3); width: 60%; margin: 3rem auto;">
+
+    <div class="memory" style="max-width: 800px; margin: 4rem auto; text-align: center; font-size: 1.1rem; line-height: 1.6;">
+      <h3>Son Söz</h3>
+      <p>
+        Bu siteyi aslında dijital günlüğümüz yapmayı planlıyordum ama daha çok sana içimi dökme sitesi oldu. Seninle yaşadığım her şey, bu simsiyah boşlukta parlayan birer ışık gibi. Beni kaybolmaktan koruyor ve yol gösteriyor. Belki ileride hafızamız bize oyunlar oynayacak ama burada yazanlar hep aynı kalacak. Çünkü bu sayfa, seni ne kadar çok sevdiğimi fısıldayan dijital bir kalp gibi. Sonsuza kadar seninle, sonsuza kadar aynı yıldızların altında yaşamak dileğiyle...
+      </p>
+    </div>
+  </div>
+
+  <audio id="bg-music" loop>
+    <source src="ask.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    function checkPassword() {
+      const userInput = document.getElementById('password').value;
+      const realHash = "ec1f86963f5d7f9df7984b6c3f7931c6";
+      const userHash = md5(userInput);
+      if (userHash === realHash) {
+        document.body.style.transition = 'transform 0.6s ease, opacity 0.6s ease';
+        document.body.style.transform = 'scale(1.1)';
+        document.body.style.opacity = 0;
+        setTimeout(() => {
+          document.body.style.transform = 'scale(1)';
+          document.body.style.opacity = 1;
+          document.getElementById('login').style.display = 'none';
+          document.getElementById('diary').style.display = 'block';
+          document.getElementById('bg-music').play();
+        }, 600);
+      } else {
+        alert("Don’t fail me again, Piko.");
+      }
+    }
+
+    document.getElementById("login-btn").addEventListener("click", checkPassword);
+
+    function md5(input) {
+      return input === "241223" ? "ec1f86963f5d7f9df7984b6c3f7931c6" : "";
+    }
+
+    
+
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function createStars(count) {
+      stars = [];
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 1.5 + 0.5,
+          speed: Math.random() * 0.3 + 0.05,
+          twinkle: Math.random() * 0.5 + 0.5,
+          isShooting: Math.random() < 0.02,
+          trail: 0
+        });
+      }
+    }
+
+    function animateStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let star of stars) {
+        if (star.isShooting) {
+          ctx.strokeStyle = 'white';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(star.x, star.y);
+          ctx.lineTo(star.x - star.trail * 2, star.y - star.trail);
+          ctx.stroke();
+          star.x += 6;
+          star.y += 3;
+          star.trail += 1;
+          if (star.x > canvas.width || star.y > canvas.height) {
+            star.x = Math.random() * canvas.width;
+            star.y = 0;
+            star.trail = 0;
+            star.isShooting = Math.random() < 0.02;
+          }
+        } else {
+          ctx.fillStyle = `rgba(255, 255, 255, ${star.twinkle})`;
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.radius, 0, 2 * Math.PI);
+          ctx.fill();
+          star.y += star.speed;
+          if (star.y > canvas.height) {
+            star.y = 0;
+            star.x = Math.random() * canvas.width;
+          }
+          star.twinkle = 0.5 + Math.random() * 0.5;
+        }
+      }
+      requestAnimationFrame(animateStars);
+    }
+
+    resizeCanvas();
+    createStars(200);
+    animateStars();
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      createStars(200);
+    });
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.memory').forEach((el, i) => {
+      setTimeout(() => observer.observe(el), i * 100);
+    });
+  </script>
+  <img src="falcon.png" alt="Millennium Falcon" style="position: fixed; bottom: 20px; left: -300px; width: 100px; z-index: 1; animation: flyAcross 10s linear infinite; pointer-events: none;">
+
+  <style>
+    @keyframes flyAcross {
+      0% { left: -300px; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { left: 110%; opacity: 0; }
+    }
+  </style>
+
+</html>
